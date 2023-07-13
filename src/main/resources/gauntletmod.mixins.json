@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.gauntletmc.mod.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "CreativeModeInventoryScreenMixin",
+    "ItemModelShaperMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

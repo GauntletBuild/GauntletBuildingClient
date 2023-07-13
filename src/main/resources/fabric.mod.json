@@ -10,6 +10,9 @@
       "net.gauntletmc.mod.GauntletClient"
     ]
   },
+  "mixins": [
+    "gauntletmod.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
     "minecraft": ">=1.20"
