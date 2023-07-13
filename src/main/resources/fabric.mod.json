@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "gauntletmod",
+  "version": "${version}",
+  "name": "Gauntlet: Mod",
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.gauntletmc.mod.GauntletClient"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.20"
+  }
+}
