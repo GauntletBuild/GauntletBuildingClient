@@ -57,14 +57,14 @@ public class GauntletClient implements ClientModInitializer {
 
         ItemTooltipCallback.EVENT.register((stack, context, lines) -> {
             CompoundTag tag = stack.getTag();
-            if (tag != null && tag.contains("PublicBukkitValues")) {
-                CompoundTag bukkitValues = tag.getCompound("PublicBukkitValues");
-                if (bukkitValues.contains("gauntlet:item")) {
+            if (stack.hasTag() && tag != null) {
+                String id = tag.getString("gauntlet:item");
+                if (!id.isBlank()) {
                     if(context.isAdvanced()) {
                         Component title = lines.get(0);
                         lines.clear();
                         lines.add(title);
-                        lines.add(Component.literal(bukkitValues.getString("gauntlet:item")).withStyle(ChatFormatting.DARK_GRAY));
+                        lines.add(Component.literal(id).withStyle(ChatFormatting.DARK_GRAY));
                     } else {
                         lines.set(0, lines.get(0).copy().setStyle(Style.EMPTY));
                     }

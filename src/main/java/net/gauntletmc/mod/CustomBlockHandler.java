@@ -3,6 +3,7 @@ package net.gauntletmc.mod;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -37,10 +38,15 @@ public class CustomBlockHandler {
                     stack.setHoverName(Component.translatable(id.toLanguageKey("item")).withStyle(Style.EMPTY.withItalic(false)));
 
                     CompoundTag tag = stack.getOrCreateTag();
-                    CompoundTag bukkitValues = tag.getCompound("PublicBukkitValues");
-                    bukkitValues.putString("gauntlet:item", id.toString());
-                    tag.put("PublicBukkitValues", bukkitValues);
+                    tag.putString("gauntlet:item", id.toString());
                     tag.putInt("CustomModelData", CustomBlockHandler.getIndex(state));
+
+                    if (FabricLoader.getInstance().isModLoaded("axiom")) {
+                        CompoundTag axiom = new CompoundTag();
+                        axiom.putString("CustomBlockPlacer", id.toString());
+                        tag.put("Axiom", axiom);
+                    }
+
                     stack.setTag(tag);
                 }
                 BLOCKS.put(state, stack);

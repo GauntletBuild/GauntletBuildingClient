@@ -28,8 +28,6 @@ public class ItemModelShaperMixin {
     public void onModelGet(ItemStack stack, CallbackInfoReturnable<BakedModel> cir) {
         CompoundTag tag = stack.getTag();
         if (tag == null) return;
-        if (!tag.contains("PublicBukkitValues")) return;
-        tag = tag.getCompound("PublicBukkitValues");
         if (!tag.contains("gauntlet:item")) return;
         List<BlockState> states = CustomBlockHandler.getStates(ResourceLocation.tryParse(tag.getString("gauntlet:item")));
         if (states == null || states.isEmpty()) return;
