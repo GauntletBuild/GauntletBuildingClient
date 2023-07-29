@@ -1,12 +1,18 @@
 package net.gauntletmc.mod;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockApplyCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.gauntletmc.mod.network.ClientboundOpenScreen;
+import net.gauntletmc.mod.network.ServerboundRequestScreen;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -23,9 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("NoTranslation")
 public class GauntletClient implements ClientModInitializer {
 
     public static final ResourceLocation CREATIVE_TAB = new ResourceLocation("gauntletmod", "gauntlet_blocks");
+    public static final KeyMapping OPEN_NOTES = new KeyMapping("Open Notes (Gauntlet)", InputConstants.KEY_N, "key.categories.misc");
 
     @Override
     public void onInitializeClient() {
@@ -42,6 +50,7 @@ public class GauntletClient implements ClientModInitializer {
                     CustomBlockHandler.update(blocks);
                 }
         );
+        ClientboundOpenScreen.init();
 
         ClientPickBlockApplyCallback.EVENT.register((player, result, stack) -> {
             if (result instanceof BlockHitResult blockResult) {
@@ -72,7 +81,11 @@ public class GauntletClient implements ClientModInitializer {
             }
         });
 
-
+        ClientTickEvents.END_CLIENT_TICK.register((c) -> {
+            while (OPEN_NOTES.consumeClick()) {
+                ServerboundRequestScreen.send(Minecraft.getInstance().getUser().getProfileId());
+            }
+        });
 
         Registry.register(
                 BuiltInRegistries.CREATIVE_MODE_TAB,
