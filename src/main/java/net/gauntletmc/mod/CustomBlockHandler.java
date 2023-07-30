@@ -1,8 +1,7 @@
 package net.gauntletmc.mod;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIntPair;
+import it.unimi.dsi.fastutil.bytes.ByteObjectPair;
+import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -11,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
@@ -20,8 +20,9 @@ public class CustomBlockHandler {
     private static final Map<BlockState, ItemStack> BLOCKS = new HashMap<>();
     private static final Map<BlockState, ResourceLocation> IDS = new HashMap<>();
     private static final Object2IntMap<BlockState> INDEXES = new Object2IntOpenHashMap<>();
+    private static final Object2ByteMap<BlockState> SHAPES = new Object2ByteOpenHashMap<>();
 
-    public static void update(Map<ObjectIntPair<ResourceLocation>, List<BlockState>> blocks) {
+    public static void update(Map<ObjectIntPair<ResourceLocation>, List<ByteObjectPair<BlockState>>> blocks) {
         REGISTRY.clear();
 
         BLOCKS.clear();
@@ -31,8 +32,9 @@ public class CustomBlockHandler {
             ItemStack stack = null;
             ResourceLocation id = entry.getKey().key();
             int index = entry.getKey().valueInt();
-            REGISTRY.put(id, entry.getValue());
-            for (var state : entry.getValue()) {
+            REGISTRY.put(id, entry.getValue().stream().map(ByteObjectPair::value).toList());
+            for (var pair : entry.getValue()) {
+                BlockState state = pair.value();
                 if (stack == null) {
                     stack = new ItemStack(state.getBlock());
                     stack.setHoverName(Component.translatable(id.toLanguageKey("item")).withStyle(Style.EMPTY.withItalic(false)));
@@ -52,6 +54,7 @@ public class CustomBlockHandler {
                 BLOCKS.put(state, stack);
                 IDS.put(state, id);
                 INDEXES.put(state, index);
+                SHAPES.put(state, pair.firstByte());
             }
         }
     }
@@ -70,6 +73,13 @@ public class CustomBlockHandler {
 
     public static List<BlockState> getStates(ResourceLocation id) {
         return REGISTRY.getOrDefault(id, List.of());
+    }
+
+    public static VoxelShape getShape(BlockState state) {
+        if (!SHAPES.containsKey(state)) {
+            return null;
+        }
+        return CustomShapes.fromByte(SHAPES.getByte(state));
     }
 
     public static Collection<ItemStack> getItems() {

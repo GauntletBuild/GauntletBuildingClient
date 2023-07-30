@@ -4,6 +4,7 @@
   "package": "net.gauntletmc.mod.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "CustomShapesMixin"
   ],
   "client": [
     "CreativeModeInventoryScreenMixin",

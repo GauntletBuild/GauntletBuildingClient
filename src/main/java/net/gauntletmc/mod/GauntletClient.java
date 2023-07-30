@@ -1,6 +1,7 @@
 package net.gauntletmc.mod;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import it.unimi.dsi.fastutil.bytes.ByteObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -41,11 +42,13 @@ public class GauntletClient implements ClientModInitializer {
                 new ResourceLocation("gauntletblocks:blocks"),
                 (client, handler, buffer, response) -> {
                     int size = buffer.readVarInt();
-                    Map<ObjectIntPair<ResourceLocation>, List<BlockState>> blocks = new HashMap<>(size);
+                    Map<ObjectIntPair<ResourceLocation>, List<ByteObjectPair<BlockState>>> blocks = new HashMap<>(size);
                     for (int i = 0; i < size; i++) {
                         ResourceLocation id = buffer.readResourceLocation();
                         int index = buffer.readVarInt();
-                        blocks.put(ObjectIntPair.of(id, index), buffer.readList((buf) -> buf.readById(Block.BLOCK_STATE_REGISTRY)));
+                        blocks.put(ObjectIntPair.of(id, index), buffer.readList((buf) ->
+                                ByteObjectPair.of(buf.readByte(), buf.readById(Block.BLOCK_STATE_REGISTRY)))
+                        );
                     }
                     CustomBlockHandler.update(blocks);
                 }
