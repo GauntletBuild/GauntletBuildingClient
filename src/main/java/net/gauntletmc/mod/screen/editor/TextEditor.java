@@ -129,7 +129,7 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
 
     private boolean setCursorToMouse(double mouseX, double mouseY, boolean selecting) {
         if (!canClickText(mouseX, mouseY)) return false;
-        int cursorX = (int)Math.round(mouseX - this.x - 20);
+        int cursorX = (int) Math.round(mouseX - this.x - 20);
         int cursorY = Mth.clamp((int) (mouseY - this.y) / 10, 0, content.lines().size() - 1);
         if (cursorY + scroll < 0 || cursorY + scroll >= content.lines().size()) return false;
         String line = content.lines().get(cursorY + scroll);
@@ -189,6 +189,11 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
             }
             case InputConstants.KEY_HOME -> {
                 content.setCursor(0, 0, Screen.hasShiftDown());
+                yield true;
+            }
+            case InputConstants.KEY_TAB -> {
+                if (!canEdit) yield false;
+                content.addText("    ");
                 yield true;
             }
             default -> {

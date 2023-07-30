@@ -5,6 +5,7 @@ import net.gauntletmc.mod.network.ClientboundOpenScreen;
 import net.gauntletmc.mod.network.ServerboundRequestScreen;
 import net.gauntletmc.mod.network.ServerboundSetTextScreen;
 import net.gauntletmc.mod.screen.editor.TextEditor;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.CommonComponents;
@@ -40,7 +41,7 @@ public class NoteScreen extends BaseCursorScreen {
                 0x000000,
                 0x000000,
                 Minecraft.getInstance().font,
-                Component::literal
+                text -> Component.literal(text).withStyle(ChatFormatting.BLACK)
         ));
         editor.setContent(String.join("\n", lines));
 
