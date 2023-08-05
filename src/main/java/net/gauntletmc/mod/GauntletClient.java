@@ -34,6 +34,7 @@ import java.util.Map;
 public class GauntletClient implements ClientModInitializer {
 
     public static final ResourceLocation CREATIVE_TAB = new ResourceLocation("gauntletmod", "gauntlet_blocks");
+    public static final ResourceLocation CREATIVE_TAB_DECORATIONS = new ResourceLocation("gauntletmod", "gauntlet_decorations");
     public static final KeyMapping OPEN_NOTES = new KeyMapping("Open Notes (Gauntlet)", InputConstants.KEY_N, "key.categories.misc");
 
     @Override
@@ -96,8 +97,18 @@ public class GauntletClient implements ClientModInitializer {
                 FabricItemGroup.builder()
                     .icon(Items.NOTE_BLOCK::getDefaultInstance)
                     .title(Component.literal("Gauntlet Blocks"))
-                    .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems()))
+                    .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Items.NOTE_BLOCK)))
                     .build()
+        );
+
+        Registry.register(
+                BuiltInRegistries.CREATIVE_MODE_TAB,
+                CREATIVE_TAB_DECORATIONS,
+                FabricItemGroup.builder()
+                        .icon(Items.REDSTONE::getDefaultInstance)
+                        .title(Component.literal("Gauntlet Decorations"))
+                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Items.REDSTONE)))
+                        .build()
         );
 
     }

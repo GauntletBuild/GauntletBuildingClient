@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.level.block.state.BlockState;
@@ -82,7 +83,7 @@ public class CustomBlockHandler {
         return CustomShapes.fromByte(SHAPES.getByte(state));
     }
 
-    public static Collection<ItemStack> getItems() {
+    public static Collection<ItemStack> getItems(Item item) {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndTagSet();
         List<ObjectIntPair<BlockState>> list = new ArrayList<>();
         for (var entry : INDEXES.object2IntEntrySet()) {
@@ -91,7 +92,7 @@ public class CustomBlockHandler {
         list.sort(Comparator.comparingInt(ObjectIntPair::valueInt));
         for (var entry : list) {
             ItemStack stack = BLOCKS.get(entry.key());
-            if (stack != null && !stack.isEmpty()) {
+            if (stack != null && !stack.isEmpty() && stack.getItem() == item) {
                 set.add(stack);
             }
         }

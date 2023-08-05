@@ -66,7 +66,7 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
             }
             try (var ignored1 = RenderUtils.createScissorBoxStack(ignored.stack(), Minecraft.getInstance(), graphics.pose(), this.x + 20, this.y, this.width - 20, this.height)) {
                 try (var pose = new CloseablePoseStack(graphics)) {
-                    String currentLine = content.line().substring(0, content.cursor().x());
+                    String currentLine = safeSubString(content.line(), content.cursor().x());
                     int overflowXoffset = (this.font.width(currentLine) - this.width + 25) + 10;
                     overflowXoffset = Math.max(0, overflowXoffset);
 
@@ -80,7 +80,7 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
                         String line = content.lines().get(i);
                         graphics.drawString(this.font, this.highlighter.highlight(line), this.x + 20, this.y + i * 10 + 1, 0xFFFFFFFF, false);
                         if (i == content.cursor().y()) {
-                            String first = line.substring(0, content.cursor().x());
+                            String first = safeSubString(line, content.cursor().x());
                             var i1 = this.x + 19 + (content.cursor().x() == 0 ? 1 : this.font.width(this.highlighter.highlight(first)));
                             if (System.currentTimeMillis() / 500 % 2 == 0) {
                                 graphics.fill(i1, this.y + i * 10, i1 + 1, this.y + i * 10 + 10, cursorColor | 0xFF000000);
@@ -108,7 +108,7 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
                             }
 
                             if (x1 != x2) {
-                                graphics.fill(this.x + 19 + this.font.width(line.substring(0, x1)), this.y + i * 10, this.x + 19 + this.font.width(line.substring(0, x2)), this.y + i * 10 + 10, 0x806464FF);
+                                graphics.fill(this.x + 19 + this.font.width(safeSubString(line, x1)), this.y + i * 10, this.x + 19 + this.font.width(safeSubString(line, x2)), this.y + i * 10 + 10, 0x806464FF);
                             }
                         }
                     }
@@ -283,5 +283,11 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
 
     public boolean canClickText(double mouseX, double mouseY) {
         return isMouseOver(mouseX, mouseY);
+    }
+
+    private static String safeSubString(String text, int index) {
+        if (index < 0) return "";
+        if (index > text.length()) return text;
+        return text.substring(0, index);
     }
 }

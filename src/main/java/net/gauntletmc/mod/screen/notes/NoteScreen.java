@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,8 @@ public class NoteScreen extends BaseCursorScreen {
     private final List<String> lines;
 
     private TextEditor editor;
+
+    private boolean errored = false;
 
     public NoteScreen(UUID id, List<ClientboundOpenScreen.Entry> entries, List<String> lines) {
         super(CommonComponents.EMPTY);
@@ -58,38 +61,49 @@ public class NoteScreen extends BaseCursorScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int i, int j, float f) {
-        graphics.fill(0, 0, width, height, 0xD0000000);
-        graphics.blitRepeating(TEXTURE, 0, 0, this.width, 15, 0, 0, 128, 15);
-        int sidebar = (int) (this.width * 0.25f) - 2;
-        graphics.blitRepeating(TEXTURE, sidebar, 15, 2, this.height - 15, 243, 0, 2, 256);
-        graphics.blitRepeating(TEXTURE,
-                0, 15,
-                sidebar, this.height - 15,
-                0, 15,
-                122, 241
-        );
-        graphics.blitRepeating(TEXTURE,
-                sidebar + 2, 15,
-                this.width - sidebar, this.height - 15,
-                122, 15,
-                121, 241
-        );
+    public void render(@NotNull GuiGraphics graphics, int i, int j, float f) {
+        if (!errored) {
+            try {
+                graphics.fill(0, 0, width, height, 0xD0000000);
+                graphics.blitRepeating(TEXTURE, 0, 0, this.width, 15, 0, 0, 128, 15);
+                int sidebar = (int) (this.width * 0.25f) - 2;
+                graphics.blitRepeating(TEXTURE, sidebar, 15, 2, this.height - 15, 243, 0, 2, 256);
+                graphics.blitRepeating(TEXTURE,
+                        0, 15,
+                        sidebar, this.height - 15,
+                        0, 15,
+                        122, 241
+                );
+                graphics.blitRepeating(TEXTURE,
+                        sidebar + 2, 15,
+                        this.width - sidebar, this.height - 15,
+                        122, 15,
+                        121, 241
+                );
 
-        String username = this.entries.stream()
-                .filter(entry -> entry.id().equals(this.id))
-                .map(ClientboundOpenScreen.Entry::username)
-                .findFirst()
-                .orElse(this.id.equals(Minecraft.getInstance().getUser().getProfileId()) ? Minecraft.getInstance().getUser().getName() : "Unknown");
+                String username = this.entries.stream()
+                        .filter(entry -> entry.id().equals(this.id))
+                        .map(ClientboundOpenScreen.Entry::username)
+                        .findFirst()
+                        .orElse(this.id.equals(Minecraft.getInstance().getUser().getProfileId()) ? Minecraft.getInstance().getUser().getName() : "Unknown");
 
-        int textX = (int) (this.width * 0.25f) + ((int) (this.width * 0.75f) / 2) - font.width("Notes - " + username) / 2;
-        graphics.drawString(
-                font,
-                "Notes - " + username, textX, 3, 0x404040,
-                false
-        );
+                int textX = (int) (this.width * 0.25f) + ((int) (this.width * 0.75f) / 2) - font.width("Notes - " + username) / 2;
+                graphics.drawString(
+                        font,
+                        "Notes - " + username, textX, 3, 0x404040,
+                        false
+                );
 
-        super.render(graphics, i, j, f);
+                super.render(graphics, i, j, f);
+            } catch (Exception e) {
+                errored = true;
+                e.printStackTrace();
+            }
+        }
+        if (errored) {
+            graphics.fill(0, 0, width, height, 0xD0000000);
+            graphics.drawString(font, "An error occurred while rendering the screen.", 0, 0, 0xFFFFFF);
+        }
     }
 
     @Override

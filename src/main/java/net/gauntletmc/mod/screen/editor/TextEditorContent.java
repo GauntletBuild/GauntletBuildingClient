@@ -112,8 +112,14 @@ public class TextEditorContent {
             }
         } else {
             String line = lines.get(cursor.y());
-            lines.set(cursor.y(), line.substring(0, cursor.x() - 1) + line.substring(cursor.x()));
-            cursor.add(-1, 0);
+
+            if (cursor.x() >= 4 && line.startsWith("    ", cursor.x() - 4)) {
+                lines.set(cursor.y(), line.substring(0, cursor.x() - 4) + line.substring(cursor.x()));
+                cursor.add(-4, 0);
+            } else {
+                lines.set(cursor.y(), line.substring(0, cursor.x() - 1) + line.substring(cursor.x()));
+                cursor.add(-1, 0);
+            }
         }
     }
 
