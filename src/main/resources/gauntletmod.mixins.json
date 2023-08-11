@@ -7,8 +7,10 @@
     "CustomShapesMixin"
   ],
   "client": [
+    "ClientLevelMixin",
     "CreativeModeInventoryScreenMixin",
-    "ItemModelShaperMixin"
+    "ItemModelShaperMixin",
+    "LevelRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

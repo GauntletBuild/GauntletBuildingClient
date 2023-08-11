@@ -1,6 +1,7 @@
 package net.gauntletmc.mod;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.teamresourceful.resourcefullib.common.color.Color;
 import it.unimi.dsi.fastutil.bytes.ByteObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.fabricmc.api.ClientModInitializer;
@@ -9,6 +10,8 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockApplyCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.gauntletmc.mod.barriers.BarrierHandler;
 import net.gauntletmc.mod.network.ClientboundOpenScreen;
 import net.gauntletmc.mod.network.ServerboundRequestScreen;
 import net.minecraft.ChatFormatting;
@@ -20,6 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -39,6 +43,9 @@ public class GauntletClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        Color.initRainbow();
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new BarrierHandler());
+
         ClientPlayNetworking.registerGlobalReceiver(
                 new ResourceLocation("gauntletblocks:blocks"),
                 (client, handler, buffer, response) -> {
