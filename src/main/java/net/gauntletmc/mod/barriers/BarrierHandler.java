@@ -30,6 +30,8 @@ public class BarrierHandler extends SimpleJsonResourceReloadListener implements 
     private static final Map<BlockState, Information> BLOCKS = new ConcurrentHashMap<>();
     private static final Map<Item, String> GROUPS = new ConcurrentHashMap<>();
 
+    private static boolean defaultToggled = false;
+
     public BarrierHandler() {
         super(new Gson(), "gauntlet/barriers");
     }
@@ -66,7 +68,11 @@ public class BarrierHandler extends SimpleJsonResourceReloadListener implements 
     }
 
     public static String getGroup(Item item) {
-        return GROUPS.getOrDefault(item, null);
+        return GROUPS.getOrDefault(item, BarrierHandler.defaultToggled ? DEFAULT.group : null);
+    }
+
+    public static void toggle() {
+        BarrierHandler.defaultToggled = !BarrierHandler.defaultToggled;
     }
 
     private static Codec<Pair<List<List<BlockState>>, Information>> codec(Block block) {

@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockApplyCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -24,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -33,13 +35,17 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 @SuppressWarnings("NoTranslation")
 public class GauntletClient implements ClientModInitializer {
 
     public static final ResourceLocation CREATIVE_TAB = new ResourceLocation("gauntletmod", "gauntlet_blocks");
     public static final ResourceLocation CREATIVE_TAB_DECORATIONS = new ResourceLocation("gauntletmod", "gauntlet_decorations");
+    public static final ResourceLocation CREATIVE_TAB_ITEMS = new ResourceLocation("gauntletmod", "gauntlet_items");
+
     public static final KeyMapping OPEN_NOTES = new KeyMapping("Open Notes (Gauntlet)", InputConstants.KEY_N, "key.categories.misc");
+    public static final KeyMapping TOGGLE_BARRIERS = new KeyMapping("Toggle Barriers", InputConstants.KEY_PERIOD, "key.categories.misc");
 
     @Override
     public void onInitializeClient() {
@@ -93,10 +99,16 @@ public class GauntletClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register((c) -> {
-            while (OPEN_NOTES.consumeClick()) {
+            if (OPEN_NOTES.consumeClick()) {
                 ServerboundRequestScreen.send(Minecraft.getInstance().getUser().getProfileId());
             }
+            if (TOGGLE_BARRIERS.consumeClick()) {
+                BarrierHandler.toggle();
+            }
         });
+
+        final Predicate<Item> isNoteBlock = Items.NOTE_BLOCK::equals;
+        final Predicate<Item> isRedstone = Items.REDSTONE::equals;
 
         Registry.register(
                 BuiltInRegistries.CREATIVE_MODE_TAB,
@@ -104,7 +116,7 @@ public class GauntletClient implements ClientModInitializer {
                 FabricItemGroup.builder()
                     .icon(Items.NOTE_BLOCK::getDefaultInstance)
                     .title(Component.literal("Gauntlet Blocks"))
-                    .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Items.NOTE_BLOCK)))
+                    .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(isNoteBlock)))
                     .build()
         );
 
@@ -114,9 +126,21 @@ public class GauntletClient implements ClientModInitializer {
                 FabricItemGroup.builder()
                         .icon(Items.REDSTONE::getDefaultInstance)
                         .title(Component.literal("Gauntlet Decorations"))
-                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Items.REDSTONE)))
+                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(isRedstone)))
                         .build()
         );
 
+        Registry.register(
+                BuiltInRegistries.CREATIVE_MODE_TAB,
+                CREATIVE_TAB_ITEMS,
+                FabricItemGroup.builder()
+                        .icon(Items.BEDROCK::getDefaultInstance)
+                        .title(Component.literal("Gauntlet Items"))
+                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Predicate.not(isNoteBlock.or(isRedstone)))))
+                        .build()
+        );
+
+        KeyBindingHelper.registerKeyBinding(OPEN_NOTES);
+        KeyBindingHelper.registerKeyBinding(TOGGLE_BARRIERS);
     }
 }

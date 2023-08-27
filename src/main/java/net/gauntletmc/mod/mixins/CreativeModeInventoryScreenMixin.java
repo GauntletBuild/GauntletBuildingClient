@@ -26,7 +26,7 @@ public abstract class CreativeModeInventoryScreenMixin {
             at = @At("TAIL")
     )
     public void gauntlet$onInit(Player player, FeatureFlagSet flags, boolean hasPermissions, CallbackInfo ci) {
-        Stream.of(GauntletClient.CREATIVE_TAB, GauntletClient.CREATIVE_TAB_DECORATIONS)
+        Stream.of(GauntletClient.CREATIVE_TAB, GauntletClient.CREATIVE_TAB_DECORATIONS, GauntletClient.CREATIVE_TAB_ITEMS)
                 .map(BuiltInRegistries.CREATIVE_MODE_TAB::getOptional)
                 .flatMap(Optional::stream)
                 .forEach(tab -> tab.buildContents(new CreativeModeTab.ItemDisplayParameters(

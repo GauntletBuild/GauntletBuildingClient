@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class CustomBlockHandler {
 
@@ -83,7 +84,7 @@ public class CustomBlockHandler {
         return CustomShapes.fromByte(SHAPES.getByte(state));
     }
 
-    public static Collection<ItemStack> getItems(Item item) {
+    public static Collection<ItemStack> getItems(Predicate<Item> predicate) {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndTagSet();
         List<ObjectIntPair<BlockState>> list = new ArrayList<>();
         for (var entry : INDEXES.object2IntEntrySet()) {
@@ -92,7 +93,7 @@ public class CustomBlockHandler {
         list.sort(Comparator.comparingInt(ObjectIntPair::valueInt));
         for (var entry : list) {
             ItemStack stack = BLOCKS.get(entry.key());
-            if (stack != null && !stack.isEmpty() && stack.getItem() == item) {
+            if (stack != null && !stack.isEmpty() && predicate.test(stack.getItem())) {
                 set.add(stack);
             }
         }
