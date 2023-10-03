@@ -65,21 +65,12 @@ public class NoteScreen extends BaseCursorScreen {
         if (!errored) {
             try {
                 graphics.fill(0, 0, width, height, 0xD0000000);
-                graphics.blitRepeating(TEXTURE, 0, 0, this.width, 15, 0, 0, 128, 15);
+                graphics.fill(0, 13, this.width, this.height, 0xC6C6C6);
+                graphics.fill(13, 15, this.width, this.height, 0x585659);
                 int sidebar = (int) (this.width * 0.25f) - 2;
-                graphics.blitRepeating(TEXTURE, sidebar, 15, 2, this.height - 15, 243, 0, 2, 256);
-                graphics.blitRepeating(TEXTURE,
-                        0, 15,
-                        sidebar, this.height - 15,
-                        0, 15,
-                        122, 241
-                );
-                graphics.blitRepeating(TEXTURE,
-                        sidebar + 2, 15,
-                        this.width - sidebar, this.height - 15,
-                        122, 15,
-                        121, 241
-                );
+                graphics.fill(sidebar, 15, sidebar + 2, this.height - 15, 0x585659);
+                graphics.fill(0, 15, sidebar, this.height - 15, 0xA0A0A0);
+                graphics.fill(sidebar + 2, 15, this.width - sidebar, this.height - 15, 0xC6C6C6);
 
                 String username = this.entries.stream()
                         .filter(entry -> entry.id().equals(this.id))

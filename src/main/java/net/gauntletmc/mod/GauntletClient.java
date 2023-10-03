@@ -12,7 +12,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockApplyCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.gauntletmc.mod.axiom.RelightTool;
+import net.gauntletmc.mod.axiom.ServiceHelper;
 import net.gauntletmc.mod.barriers.BarrierHandler;
+import net.gauntletmc.mod.handlers.IgnoredBlocksListener;
 import net.gauntletmc.mod.network.ClientboundOpenScreen;
 import net.gauntletmc.mod.network.ServerboundRequestScreen;
 import net.minecraft.ChatFormatting;
@@ -32,6 +35,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +53,11 @@ public class GauntletClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ServiceHelper.getToolRegistryService().register(new RelightTool());
+
         Color.initRainbow();
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new BarrierHandler());
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(IgnoredBlocksListener.INSTANCE);
 
         ClientPlayNetworking.registerGlobalReceiver(
                 new ResourceLocation("gauntletblocks:blocks"),
@@ -108,6 +115,22 @@ public class GauntletClient implements ClientModInitializer {
         });
 
         final Predicate<Item> isNoteBlock = Items.NOTE_BLOCK::equals;
+        final Predicate<Item> isDarkOakLeavesBlock = Items.DARK_OAK_LEAVES::equals;
+        final Predicate<Item> isBirchLeavesBlock = Items.BIRCH_LEAVES::equals;
+        final Predicate<Item> isSpruceLeavesBlock = Items.SPRUCE_LEAVES::equals;
+        final Predicate<Item> isAcaciaLeavesBlock = Items.ACACIA_LEAVES::equals;
+        final Predicate<Item> isAzaleaLeavesBlock = Items.AZALEA_LEAVES::equals;
+        final Predicate<Item> isFloweringAzaleaLeavesBlock = Items.FLOWERING_AZALEA_LEAVES::equals;
+        final Predicate<Item> isMangroveLeavesBlock = Items.MANGROVE_LEAVES::equals;
+        final Predicate<Item> isJungleLeavesBlock = Items.JUNGLE_LEAVES::equals;
+        final Predicate<Item> isLeavesBlock = isDarkOakLeavesBlock
+                .or(isBirchLeavesBlock)
+                .or(isSpruceLeavesBlock)
+                .or(isAcaciaLeavesBlock)
+                .or(isAzaleaLeavesBlock)
+                .or(isFloweringAzaleaLeavesBlock)
+                .or(isMangroveLeavesBlock)
+                .or(isJungleLeavesBlock);
         final Predicate<Item> isRedstone = Items.REDSTONE::equals;
 
         Registry.register(
@@ -116,7 +139,7 @@ public class GauntletClient implements ClientModInitializer {
                 FabricItemGroup.builder()
                     .icon(Items.NOTE_BLOCK::getDefaultInstance)
                     .title(Component.literal("Gauntlet Blocks"))
-                    .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(isNoteBlock)))
+                    .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(isNoteBlock, Comparator.comparingInt(ObjectIntPair::valueInt))))
                     .build()
         );
 
@@ -126,7 +149,7 @@ public class GauntletClient implements ClientModInitializer {
                 FabricItemGroup.builder()
                         .icon(Items.REDSTONE::getDefaultInstance)
                         .title(Component.literal("Gauntlet Decorations"))
-                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(isRedstone)))
+                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(isRedstone.or(isLeavesBlock))))
                         .build()
         );
 
@@ -136,7 +159,7 @@ public class GauntletClient implements ClientModInitializer {
                 FabricItemGroup.builder()
                         .icon(Items.BEDROCK::getDefaultInstance)
                         .title(Component.literal("Gauntlet Items"))
-                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Predicate.not(isNoteBlock.or(isRedstone)))))
+                        .displayItems((params, output) -> output.acceptAll(CustomBlockHandler.getItems(Predicate.not(isNoteBlock.or(isRedstone).or(isLeavesBlock)), Comparator.comparingInt(ObjectIntPair::valueInt))))
                         .build()
         );
 

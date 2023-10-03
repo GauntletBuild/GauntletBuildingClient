@@ -3,6 +3,7 @@ package net.gauntletmc.mod;
 import it.unimi.dsi.fastutil.bytes.ByteObjectPair;
 import it.unimi.dsi.fastutil.objects.*;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -85,12 +86,19 @@ public class CustomBlockHandler {
     }
 
     public static Collection<ItemStack> getItems(Predicate<Item> predicate) {
+        Comparator<ObjectIntPair<BlockState>> comparator = Comparator
+            .comparing((ObjectIntPair<BlockState> entry) -> BuiltInRegistries.BLOCK.getKey(entry.key().getBlock()))
+            .thenComparingInt(ObjectIntPair::valueInt);
+        return getItems(predicate, comparator);
+    }
+
+    public static Collection<ItemStack> getItems(Predicate<Item> predicate, Comparator<ObjectIntPair<BlockState>> sorting) {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndTagSet();
         List<ObjectIntPair<BlockState>> list = new ArrayList<>();
         for (var entry : INDEXES.object2IntEntrySet()) {
             list.add(ObjectIntPair.of(entry.getKey(), entry.getIntValue()));
         }
-        list.sort(Comparator.comparingInt(ObjectIntPair::valueInt));
+        list.sort(sorting);
         for (var entry : list) {
             ItemStack stack = BLOCKS.get(entry.key());
             if (stack != null && !stack.isEmpty() && predicate.test(stack.getItem())) {

@@ -238,7 +238,7 @@ public class TextEditor implements Renderable, GuiEventListener, NarratableEntry
     }
 
     @Override
-    public boolean mouseScrolled(double d, double e, double f) {
+    public boolean mouseScrolled(double d, double e, double f, double g) {
         changeScroll((int) -f);
         return true;
     }
